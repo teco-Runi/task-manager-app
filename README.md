@@ -2,7 +2,7 @@
 
 A full-stack task manager application built with MERN stack.
 
-## 📌 Features
+## Features
 - Create tasks
 - Update tasks
 - Delete tasks
@@ -14,11 +14,11 @@ A full-stack task manager application built with MERN stack.
 - Express
 - MongoDB
 
-## 📂 Project Structure
+## Project Structure
 backend/
 frontend/
 
-## 🚀 Installation
+## Installation
 
 ### 1. Clone the repository
 git clone <repo-url>
