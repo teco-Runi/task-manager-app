@@ -1,2 +1,3 @@
-/login.html   /index.html   301
-/             /index.html   200
+/signup.html     /signup.html     200
+/dashboard.html  /dashboard.html  200
+/               /index.html       200
