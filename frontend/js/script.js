@@ -27,7 +27,7 @@ if (signupForm) {
 
             if(res.status === 201){
                 signupForm.reset();
-                window.location.href = "login.html";
+                window.location.href = "index.html";
             }
 
         } catch(err) {
@@ -151,5 +151,5 @@ function addTaskToDOM(task) {
 // Logout
 function logout(){
     localStorage.removeItem("user");
-    window.location.href = "login.html";
+    window.location.href = "index.html";
 }
