@@ -1,3 +1,6 @@
+// ================= BASE URL =================
+const BASE_URL = "https://task-manager-app-5wct.onrender.com";
+
 // ================= SIGNUP =================
 const signupForm = document.querySelector('.sign-up form');
 
@@ -10,29 +13,32 @@ if (signupForm) {
         const password = signupForm.password.value;
         const confirmPassword = signupForm.confirm.value;
 
-        if(password !== confirmPassword){
+        if (password !== confirmPassword) {
             alert("Passwords do not match!");
             return;
         }
 
         try {
-            const res = await fetch('https://task-manager-app-5wct.onrender.com/signup', { // Corrected URL
+            const res = await fetch(`${BASE_URL}/signup`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ username, email, password })
             });
 
             const data = await res.json();
-            alert(data.message);
 
-            if(res.status === 201){
-                signupForm.reset();
-                window.location.href = "index.html";
+            if (!res.ok) {
+                alert(data.message || "Signup failed");
+                return;
             }
 
-        } catch(err) {
-            alert("Server error. Try again.");
+            alert(data.message);
+            signupForm.reset();
+            window.location.href = "index.html";
+
+        } catch (err) {
             console.error(err);
+            alert("Server error. Try again.");
         }
     });
 }
@@ -48,19 +54,22 @@ if (loginForm) {
         const password = document.getElementById("password").value;
 
         try {
-            const res = await fetch('https://task-manager-app-5wct.onrender.com/login',{ // Corrected URL
+            const res = await fetch(`${BASE_URL}/login`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ email, password })
             });
 
             const data = await res.json();
-            alert(data.message);
 
-            if (res.status === 200) {
-                 localStorage.setItem("user", JSON.stringify(data.user));
-                window.location.href = "dashboard.html";
+            if (!res.ok) {
+                alert(data.message || "Login failed");
+                return;
             }
+
+            alert(data.message);
+            localStorage.setItem("user", JSON.stringify(data.user));
+            window.location.href = "dashboard.html";
 
         } catch (err) {
             console.error(err);
@@ -71,80 +80,132 @@ if (loginForm) {
 
 // ================= DASHBOARD =================
 const user = JSON.parse(localStorage.getItem("user"));
+
 if (window.location.pathname.endsWith("dashboard.html")) {
-    if(!user) window.location.href = "index.html"; // not logged in
-    else document.getElementById("welcomeUser").innerText = "Welcome " + user.username + " 🎉";
+    if (!user) {
+        window.location.href = "index.html"; // redirect if not logged in
+    } else {
+        document.getElementById("welcomeUser").innerText = "Welcome " + user.username + " 🎉";
+    }
 }
 
-// Elements
+// Elements (check if exist)
 const taskForm = document.getElementById("taskForm");
 const taskList = document.getElementById("taskList");
 
-// Load tasks
-async function loadTasks() {
-    const res = await fetch(`https://task-manager-app-5wct.onrender.com/tasks?email=${user.email}`); // Corrected URL
-    const tasks = await res.json();
-    taskList.innerHTML = "";
-    tasks.forEach(task => addTaskToDOM(task));
-}
-loadTasks();
+if (taskForm && taskList) {
+    // Load tasks
+    async function loadTasks() {
+        try {
+            const res = await fetch(`${BASE_URL}/tasks?email=${user.email}`);
+            const tasks = await res.json();
 
-// Add task
-taskForm.addEventListener("submit", async e => {
-    e.preventDefault();
-    const taskText = document.getElementById("taskInput").value;
-    const status = document.getElementById("status").value;
+            if (!res.ok) {
+                alert("Failed to load tasks");
+                return;
+            }
 
-    const res = await fetch("https://task-manager-app-5wct.onrender.com/tasks",{ // Corrected URL
-        method: "POST",
-        headers: {"Content-Type":"application/json"},
-        body: JSON.stringify({ email: user.email, taskText, status })
-    });
+            taskList.innerHTML = "";
+            tasks.forEach(task => addTaskToDOM(task));
 
-    const task = await res.json();
-    addTaskToDOM(task);
-    taskForm.reset();
-});
+        } catch (err) {
+            console.error(err);
+            alert("Server error while loading tasks");
+        }
+    }
 
-// Add task to DOM
-function addTaskToDOM(task) {
-    const li = document.createElement("li");
-    li.dataset.id = task._id;
-    li.innerHTML = `
-        <span>${task.taskText} - (${task.status})</span>
-        <div>
-            <button class="edit-btn">Edit</button>
-            <button class="delete-btn">Delete</button>
-        </div>
-    `;
+    loadTasks();
 
-    li.querySelector(".delete-btn").addEventListener("click", async ()=>{
-        await fetch(`https://task-manager-app-5wct.onrender.com/tasks/${task._id}`, { method:"DELETE" }); // Corrected URL
-        li.remove();
-    });
+    // Add task
+    taskForm.addEventListener("submit", async e => {
+        e.preventDefault();
+        const taskText = document.getElementById("taskInput").value;
+        const status = document.getElementById("status").value;
 
-    li.querySelector(".edit-btn").addEventListener("click", async () => {
-        const newStatus = prompt("Edit Status (Pending / Completed):", task.status);
-        if (!newStatus) return;
+        try {
+            const res = await fetch(`${BASE_URL}/tasks`, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ email: user.email, taskText, status })
+            });
 
-        const res = await fetch(`https://task-manager-app-5wct.onrender.com/tasks/${task._id}`, { // Corrected URL
-            method: "PUT",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ taskText: task.taskText, status: newStatus })
-        });
+            const task = await res.json();
 
-        if (res.ok) {
-            const updatedTask = await res.json();
-            li.querySelector("span").innerText = `${updatedTask.taskText} - (${updatedTask.status})`;
-            task.status = updatedTask.status;
+            if (!res.ok) {
+                alert(task.message || "Failed to add task");
+                return;
+            }
+
+            addTaskToDOM(task);
+            taskForm.reset();
+
+        } catch (err) {
+            console.error(err);
+            alert("Server error while adding task");
         }
     });
 
-    taskList.appendChild(li);
+    // Add task to DOM
+    function addTaskToDOM(task) {
+        const li = document.createElement("li");
+        li.dataset.id = task._id;
+        li.innerHTML = `
+            <span>${task.taskText} - (${task.status})</span>
+            <div>
+                <button class="edit-btn">Edit</button>
+                <button class="delete-btn">Delete</button>
+            </div>
+        `;
+
+        // Delete task
+        li.querySelector(".delete-btn").addEventListener("click", async () => {
+            try {
+                const res = await fetch(`${BASE_URL}/tasks/${task._id}`, { method: "DELETE" });
+                if (!res.ok) {
+                    alert("Failed to delete task");
+                    return;
+                }
+                li.remove();
+            } catch (err) {
+                console.error(err);
+                alert("Server error while deleting task");
+            }
+        });
+
+        // Edit task status
+        li.querySelector(".edit-btn").addEventListener("click", async () => {
+            const newStatus = prompt("Edit Status (Pending / Completed):", task.status);
+            if (!newStatus) return;
+
+            try {
+                const res = await fetch(`${BASE_URL}/tasks/${task._id}`, {
+                    method: "PUT",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ taskText: task.taskText, status: newStatus })
+                });
+
+                const updatedTask = await res.json();
+
+                if (!res.ok) {
+                    alert(updatedTask.message || "Failed to update task");
+                    return;
+                }
+
+                li.querySelector("span").innerText = `${updatedTask.taskText} - (${updatedTask.status})`;
+                task.status = updatedTask.status;
+
+            } catch (err) {
+                console.error(err);
+                alert("Server error while updating task");
+            }
+        });
+
+        taskList.appendChild(li);
+    }
 }
 
-// Logout
-function logout(){
+// ================= LOGOUT =================
+function logout() {
     localStorage.removeItem("user");
     window.location.href = "index.html";
 }
