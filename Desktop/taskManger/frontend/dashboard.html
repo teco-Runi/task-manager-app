@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Dashboard</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+<header class="dashboard-header">
+    <h2 id="welcomeUser">Welcome</h2>
+    <button onclick="logout()" class="logout-btn">Logout</button>
+</header>
+
+<div class="container">
+
+    <!-- Add Task Form -->
+    <div class="task-form">
+        <h3>Add New Task</h3>
+        <form id="taskForm">
+            <input type="text" id="taskInput" placeholder="Enter task..." required>
+
+            <select id="status">
+                <option value="Pending">Pending</option>
+                <option value="In Progress">In Progress</option>
+                <option value="Completed">Completed</option>
+            </select>
+
+            <button type="submit">Add Task</button>
+        </form>
+    </div>
+
+    <!-- Task List -->
+    <div class="task-list">
+        <h3>Your Tasks</h3>
+        <ul id="taskList"></ul>
+    </div>
+
+</div>
+
+<script src="js/script.js"></script>
+</body>
+</html>
