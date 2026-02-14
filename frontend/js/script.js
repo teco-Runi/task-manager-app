@@ -1,6 +1,3 @@
-// ================= BASE URL =================
-const BASE_URL = "https://task-manager-app-5wct.onrender.com";
-
 // ================= SIGNUP =================
 const signupForm = document.querySelector('.sign-up form');
 
@@ -19,9 +16,9 @@ if (signupForm) {
         }
 
         try {
-            const res = await fetch(`${BASE_URL}/signup`, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
+            const res = await fetch("/signup", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({ username, email, password })
             });
 
@@ -44,19 +41,19 @@ if (signupForm) {
 }
 
 // ================= LOGIN =================
-const loginForm = document.querySelector('#loginForm');
+const loginForm = document.querySelector("#loginForm");
 
 if (loginForm) {
-    loginForm.addEventListener('submit', async (e) => {
+    loginForm.addEventListener("submit", async (e) => {
         e.preventDefault();
 
         const email = document.getElementById("email").value.trim();
         const password = document.getElementById("password").value;
 
         try {
-            const res = await fetch(`${BASE_URL}/login`, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
+            const res = await fetch("/login", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({ email, password })
             });
 
@@ -89,7 +86,7 @@ if (window.location.pathname.endsWith("dashboard.html")) {
     }
 }
 
-// Elements (check if exist)
+// Elements
 const taskForm = document.getElementById("taskForm");
 const taskList = document.getElementById("taskList");
 
@@ -97,7 +94,7 @@ if (taskForm && taskList) {
     // Load tasks
     async function loadTasks() {
         try {
-            const res = await fetch(`${BASE_URL}/tasks?email=${user.email}`);
+            const res = await fetch(`/tasks?email=${user.email}`);
             const tasks = await res.json();
 
             if (!res.ok) {
@@ -123,7 +120,7 @@ if (taskForm && taskList) {
         const status = document.getElementById("status").value;
 
         try {
-            const res = await fetch(`${BASE_URL}/tasks`, {
+            const res = await fetch("/tasks", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({ email: user.email, taskText, status })
@@ -160,7 +157,7 @@ if (taskForm && taskList) {
         // Delete task
         li.querySelector(".delete-btn").addEventListener("click", async () => {
             try {
-                const res = await fetch(`${BASE_URL}/tasks/${task._id}`, { method: "DELETE" });
+                const res = await fetch(`/tasks/${task._id}`, { method: "DELETE" });
                 if (!res.ok) {
                     alert("Failed to delete task");
                     return;
@@ -178,7 +175,7 @@ if (taskForm && taskList) {
             if (!newStatus) return;
 
             try {
-                const res = await fetch(`${BASE_URL}/tasks/${task._id}`, {
+                const res = await fetch(`/tasks/${task._id}`, {
                     method: "PUT",
                     headers: { "Content-Type": "application/json" },
                     body: JSON.stringify({ taskText: task.taskText, status: newStatus })
