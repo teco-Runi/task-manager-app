@@ -16,9 +16,10 @@ app.use(cors());
 app.use(express.json());
 
 // ===== MONGODB CONNECTION =====
-mongoose.connect(process.env.MONGO_URI)
-    .then(() => console.log("✅ MongoDB connected"))
-    .catch(err => console.log("❌ MongoDB connection error:", err.message));
+mongoose.connect(process.env.MONGO_URL)
+.then(() => console.log("MongoDB connected"))
+.catch(err => console.log(err));
+
 
 // ===== USER SCHEMA =====
 const userSchema = new mongoose.Schema({
