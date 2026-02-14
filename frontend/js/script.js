@@ -16,7 +16,7 @@ if (signupForm) {
         }
 
         try {
-            const res = await fetch('https://taskmanager-api.onrender.com/signup', {
+            const res = await fetch('https://task-manager-app-5wct.onrender.com/signup', { // Corrected URL
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ username, email, password })
@@ -37,9 +37,7 @@ if (signupForm) {
     });
 }
 
-
 // ================= LOGIN =================
-
 const loginForm = document.querySelector('#loginForm');
 
 if (loginForm) {
@@ -50,7 +48,7 @@ if (loginForm) {
         const password = document.getElementById("password").value;
 
         try {
-            const res = await fetch('http://localhost:5000/login', {
+            const res = await fetch('https://task-manager-app-5wct.onrender.com/login',{ // Corrected URL
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ email, password })
@@ -74,18 +72,17 @@ if (loginForm) {
 // ================= DASHBOARD =================
 const user = JSON.parse(localStorage.getItem("user"));
 if (window.location.pathname.endsWith("dashboard.html")) {
-    const user = JSON.parse(localStorage.getItem("user"));
     if(!user) window.location.href = "index.html"; // not logged in
-    else
-        document.getElementById("welcomeUser").innerText = "Welcome " + user.username + " 🎉";
+    else document.getElementById("welcomeUser").innerText = "Welcome " + user.username + " 🎉";
 }
+
 // Elements
 const taskForm = document.getElementById("taskForm");
 const taskList = document.getElementById("taskList");
 
-// Load tasks from backend
+// Load tasks
 async function loadTasks() {
-    const res = await fetch(`http://localhost:5000/tasks?email=${user.email}`);
+    const res = await fetch(`https://task-manager-app-5wct.onrender.com/tasks?email=${user.email}`); // Corrected URL
     const tasks = await res.json();
     taskList.innerHTML = "";
     tasks.forEach(task => addTaskToDOM(task));
@@ -98,7 +95,7 @@ taskForm.addEventListener("submit", async e => {
     const taskText = document.getElementById("taskInput").value;
     const status = document.getElementById("status").value;
 
-    const res = await fetch("http://localhost:5000/tasks", {
+    const res = await fetch("https://task-manager-app-5wct.onrender.com/tasks",{ // Corrected URL
         method: "POST",
         headers: {"Content-Type":"application/json"},
         body: JSON.stringify({ email: user.email, taskText, status })
@@ -108,6 +105,7 @@ taskForm.addEventListener("submit", async e => {
     addTaskToDOM(task);
     taskForm.reset();
 });
+
 // Add task to DOM
 function addTaskToDOM(task) {
     const li = document.createElement("li");
@@ -121,35 +119,30 @@ function addTaskToDOM(task) {
     `;
 
     li.querySelector(".delete-btn").addEventListener("click", async ()=>{
-        await fetch(`http://localhost:5000/tasks/${task._id}`, { method:"DELETE" });
+        await fetch(`https://task-manager-app-5wct.onrender.com/tasks/${task._id}`, { method:"DELETE" }); // Corrected URL
         li.remove();
     });
+
     li.querySelector(".edit-btn").addEventListener("click", async () => {
+        const newStatus = prompt("Edit Status (Pending / Completed):", task.status);
+        if (!newStatus) return;
 
-    const newStatus = prompt("Edit Status (Pending / Completed):", task.status);
-    if (!newStatus) return;
+        const res = await fetch(`https://task-manager-app-5wct.onrender.com/tasks/${task._id}`, { // Corrected URL
+            method: "PUT",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ taskText: task.taskText, status: newStatus })
+        });
 
-    const res = await fetch(`http://localhost:5000/tasks/${task._id}`, {
-        method: "PUT",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ 
-            taskText: task.taskText,  // keep existing text
-            status: newStatus         // change only status
-        })
+        if (res.ok) {
+            const updatedTask = await res.json();
+            li.querySelector("span").innerText = `${updatedTask.taskText} - (${updatedTask.status})`;
+            task.status = updatedTask.status;
+        }
     });
-
-    if (res.ok) {
-        const updatedTask = await res.json();
-
-        li.querySelector("span").innerText =
-            `${updatedTask.taskText} - (${updatedTask.status})`;
-
-        task.status = updatedTask.status; // update local object
-    }
-});
 
     taskList.appendChild(li);
 }
+
 // Logout
 function logout(){
     localStorage.removeItem("user");
