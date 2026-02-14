@@ -73,10 +73,12 @@ if (loginForm) {
 
 // ================= DASHBOARD =================
 const user = JSON.parse(localStorage.getItem("user"));
-if(!user) window.location.href = "login.html"; // not logged in
-
-document.getElementById("welcomeUser").innerText = "Welcome " + user.username + " 🎉";
-
+if (window.location.pathname.endsWith("dashboard.html")) {
+    const user = JSON.parse(localStorage.getItem("user"));
+    if(!user) window.location.href = "index.html"; // not logged in
+    else
+        document.getElementById("welcomeUser").innerText = "Welcome " + user.username + " 🎉";
+}
 // Elements
 const taskForm = document.getElementById("taskForm");
 const taskList = document.getElementById("taskList");
